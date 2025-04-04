@@ -6,41 +6,69 @@ const supabase = createClient(
   process.env.REACT_APP_SUPABASE_ANON_KEY
 );
 
+// const Home = () => {
+//   // 랜덤 데이터 저장할 상태
+//   const [educationData, setEducationData] = useState([]);
+//   const [activityData, setActivityData] = useState([]);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         // Education에서 랜덤 4개 가져오기
+//         const { data: education, error: educationError } = await supabase
+//           .from('training')
+//           .select('*')
+//           .limit(4);
+
+//         console.log('Education data:', education);
+
+//         if (educationError) {
+//           console.error('Error fetching education data:', educationError);
+//         } else {
+//           setEducationData(education);
+//         }
+
+//         // External Activity에서 랜덤 4개 가져오기
+//         const { data: activity, error: activityError } = await supabase
+//           .from('community')
+//           .select('*')
+//           .limit(4);
+
+//         if (activityError) {
+//           console.error('Error fetching external activity data:', activityError);
+//         } else {
+//           setActivityData(activity);
+//         }
+//       } catch (error) {
+//         console.error('Error in fetchData:', error);
+//       }
+//     };
+
+//     fetchData();
+//   }, []);
+
+
+
 const Home = () => {
-  // 랜덤 데이터 저장할 상태
   const [educationData, setEducationData] = useState([]);
   const [activityData, setActivityData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Education에서 랜덤 4개 가져오기
-        const { data: education, error: educationError } = await supabase
-          .from('training')
-          .select('*')
-          .limit(4);
+        const res = await fetch('https://jfkzsexhtkssbekesinw.supabase.co/functions/v1/get_data');
+        const json = await res.json();
 
-        console.log('Education data:', education);
+        console.log('Response from Edge Function:', json);
 
-        if (educationError) {
-          console.error('Error fetching education data:', educationError);
+        if (json.error) {
+          console.error('Edge Function Error:', json.error);
         } else {
-          setEducationData(education);
-        }
-
-        // External Activity에서 랜덤 4개 가져오기
-        const { data: activity, error: activityError } = await supabase
-          .from('community')
-          .select('*')
-          .limit(4);
-
-        if (activityError) {
-          console.error('Error fetching external activity data:', activityError);
-        } else {
-          setActivityData(activity);
+          setEducationData(json.training || []);
+          setActivityData(json.community || []);
         }
       } catch (error) {
-        console.error('Error in fetchData:', error);
+        console.error('Network error:', error);
       }
     };
 
@@ -85,3 +113,4 @@ const Home = () => {
 };
 
 export default Home;
+
